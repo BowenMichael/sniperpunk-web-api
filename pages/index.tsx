@@ -60,7 +60,7 @@ const Page = (props : Props) =>{
                     </Card.Title>
                     <Card.Body className={'p-3'}>
                         {players.map((p:PlayerRecord) => (
-                            <>
+                            <div key={p._id}>
                                 <Row>
                                     <Col xl={'1'}>
                                         <Button 
@@ -86,7 +86,7 @@ const Page = (props : Props) =>{
                                 </Row>
 
                                 <hr/>
-                            </>
+                            </div>
                         ))}
                     </Card.Body>
                 </Card>
