@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
  * @description Functions for API Calls
  */
 export interface ResponseFuncs {
@@ -11,14 +9,18 @@ export interface ResponseFuncs {
     FIND?: Function
 }
 
-/**
- * @description Player Information
- */
-export interface PlayerRecord {
+export interface ICommonRecord {
     /**
      * @description Database ID
      */
     _id?: number,
+}
+
+/**
+ * @description Player Information
+ */
+export interface PlayerRecord extends ICommonRecord {
+
     
     /**
      * @description Steam ID
@@ -35,4 +37,22 @@ export interface PlayerRecord {
      * @description Date the player was created
      */
     created: Number
+}
+
+/**
+ * @description Log information
+ */
+export interface ILogRecord {
+    _id? : number,
+    date? : number,
+    tag : string,
+    data? : {}
+}
+
+/**
+ * @description Post system for ingame updates
+ */
+export interface IPostRecord extends ICommonRecord{
+    name?:string,
+    postImage?:string,
 }
