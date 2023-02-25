@@ -7,4 +7,17 @@ export const PlayerSchema = new mongoose.Schema({
     created : Number
 })
 
+export const PostSchema = new mongoose.Schema({
+    name:String,
+    postImage:String,
+})
+
+
+export const LogSchema = new mongoose.Schema({
+    _id : Number,
+    date : Number,
+    tag : String,
+    data : {}
+})
+
 

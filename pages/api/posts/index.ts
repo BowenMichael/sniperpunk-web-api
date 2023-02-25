@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import { connectPlayer } from "../../../connections"
-import { ResponseFuncs, PlayerRecord } from "../../../types"
+import {connectPosts} from "../../../connections"
+import { ResponseFuncs } from "../../../types"
 
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -14,30 +14,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const handleCase: ResponseFuncs = {
     // RESPONSE FOR GET REQUESTS
     GET: async (req: NextApiRequest, res: NextApiResponse) => {
-      const { Player } = await connectPlayer() // connect to database
-      res.json(await Player.find({}).catch(catcher))
+      const { Posts } = await connectPosts() // connect to database
+      res.json(await Posts.find({}).catch(catcher))
       return
     },
     // RESPONSE POST REQUESTS
     POST: async (req: NextApiRequest, res: NextApiResponse) => {
-      const { Player } = await connectPlayer() // connect to database
-      const players : any[] | void = await Player.find({}).catch(catcher) //Get All Players
-      console.log(req.body);
-      /**
-       * Check if player is in the database
-       */
-      if(players && players.filter(u => u.id === req.body.id).length < 1)
-      {
-        //Create Player
-        res.json(await Player.create(req.body).catch(catcher))
-        return
-      }
-    
-      //return null
-      res.json({undefined})
+      const { Posts } = await connectPosts() // connect to database
+      res.json(await Posts.create(req.body).catch(catcher));
       return
-      
-      
     }
   }
 

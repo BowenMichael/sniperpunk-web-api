@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next"
 import { connectPlayer } from "../../../connections"
 import { ResponseFuncs, PlayerRecord } from "../../../types"
 
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   //capture request method, we type it as a key of ResponseFunc to reduce typing later
   const method: keyof ResponseFuncs = req.method as keyof ResponseFuncs
@@ -10,35 +9,32 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   //function for catch errors
   const catcher = (error: Error) => res.status(400).json({ error })
 
-  // Potential Responses
+  // GRAB ID FROM req.query (where next stores params)
+  const id: string = req.query.id as string
+
+  // Potential Responses for /todos/:id
   const handleCase: ResponseFuncs = {
     // RESPONSE FOR GET REQUESTS
     GET: async (req: NextApiRequest, res: NextApiResponse) => {
       const { Player } = await connectPlayer() // connect to database
-      res.json(await Player.find({}).catch(catcher))
+      res.json(await Player.findById(id).catch(catcher))
       return
     },
-    // RESPONSE POST REQUESTS
-    POST: async (req: NextApiRequest, res: NextApiResponse) => {
+    // RESPONSE PUT REQUESTS
+    PUT: async (req: NextApiRequest, res: NextApiResponse) => {
       const { Player } = await connectPlayer() // connect to database
-      const players : any[] | void = await Player.find({}).catch(catcher) //Get All Players
-      console.log(req.body);
-      /**
-       * Check if player is in the database
-       */
-      if(players && players.filter(u => u.id === req.body.id).length < 1)
-      {
-        //Create Player
-        res.json(await Player.create(req.body).catch(catcher))
-        return
-      }
-    
-      //return null
-      res.json({undefined})
+      res.json(
+        await Player.findByIdAndUpdate(id, req.body, { new: true }).catch(catcher)
+      )
       return
-      
-      
-    }
+    },
+    // RESPONSE FOR DELETE REQUESTS
+    DELETE: async (req: NextApiRequest, res: NextApiResponse) => {
+      const { Player } = await connectPlayer() // connect to database
+      res.json(await Player.findByIdAndRemove(id).catch(catcher))
+      return
+    },
+
   }
 
   // Check if there is a response for the particular method, if so invoke it, if not response with an error
