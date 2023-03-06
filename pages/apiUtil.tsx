@@ -12,10 +12,10 @@ import {
     Modal,
     Form,
     FormControl,
-    Image
+    Image, ButtonGroup
 } from "react-bootstrap";
 import {IPostRecord, PlayerRecord} from "../types";
-import {CreatePost, DeletePost, GetPosts} from "../middleware/posts";
+import {CreatePost, DeletePost, GetPosts, UpdatePost} from "../middleware/posts";
 import uniqid from 'uniqid'
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -130,15 +130,20 @@ const Page = (props : Props) =>{
             return (<div key={uniqid()}>
                 <Row>
                     <Col xl={"1"}>
-                        <Button
-                            variant={"danger"}
-                            onClick={props.onDelete}
-                        >
-                            Delete
-                        </Button>
+                        <ButtonGroup>
+                            <Button
+                                variant={"danger"}
+                                onClick={props.onDelete}
+                            >
+                                Delete
+                            </Button>
+                            <CreatePostModal record={props.post}/>
+                        </ButtonGroup>
+                        
                     </Col>
                     <Col>
                         <h2>{props.post.name}</h2>
+                        <a href={props.post.href}>{props.post.href}</a>
                     </Col>
                     <Col>
                         <Image width={"100%"} src={image? String(image) : ''} alt={'image'}/>
@@ -183,10 +188,11 @@ const Page = (props : Props) =>{
             </>
         );
     }
-    const CreatePostModal = () =>
+    const CreatePostModal = (props :{record? :IPostRecord}) =>
     {
+        const {record} = props;
         const [createPostModal, setCreatePostModal] = useState(false);
-        const [newPost, setNewPost] = useState<IPostRecord>({});
+        const [newPost, setNewPost] = useState<IPostRecord>(record ? record : {});
 
         const inputPostImageRef = useRef<HTMLInputElement>(null);
 
@@ -204,12 +210,29 @@ const Page = (props : Props) =>{
             })
         }
 
+        const HandleModalUpdate = (e: FormEvent<HTMLFormElement>) =>
+        {
+            e.preventDefault();
+
+            UpdatePost(newPost).then((newPost) =>
+            {
+                const index = posts.findIndex(post => post._id === newPost._id)
+                posts[index] = newPost;
+                setPosts(posts)
+            })
+        }
+        
+        const HandleModalSubmit = (e : FormEvent<HTMLFormElement>) => {
+            record ? HandleModalUpdate(e) : HandleModalSave(e)
+            setCreatePostModal(false);
+        }
+
         return (<>
             <Button onClick={HandleModalShow}>
-                Create Post
+                {record ? 'Edit' : 'Create Post'}
             </Button>
             <Modal show={createPostModal} onHide={HandleModalHide}>
-                <Form onSubmit={HandleModalSave}>
+                <Form onSubmit={HandleModalSubmit}>
                     <Modal.Header closeButton>
                         <Modal.Title>Modal heading</Modal.Title>
                     </Modal.Header>
@@ -218,6 +241,7 @@ const Page = (props : Props) =>{
                         <Form.Text>Post Name</Form.Text>
                         <Form.Control
                             type={'text'}
+                            defaultValue={record ? record.name : ''}
                             onChange={
                                 (e) =>
                                     setNewPost(
@@ -228,11 +252,35 @@ const Page = (props : Props) =>{
                             }
                         />
 
+                        <Form.Text>Href</Form.Text>
+                        <Form.Control
+                            type={'text'}
+                            defaultValue={record ? (record.href ? record.href : '') : ''}
+                            onChange={
+                                (e) =>
+                                    setNewPost(
+                                        {
+                                            ...newPost,
+                                            href: e.currentTarget.value
+                                        })
+                            }
+                        />
+
                         <Form.Text>Post Image</Form.Text>
+                        {record?.postImage?.data &&
+                        <Image
+                            className={'mb-3'}
+                            width={"100%"}
+                            src={
+                                record?.postImage?.data ? String(record?.postImage?.data)
+                                    : ''}
+                            alt={'image'}/>
+
+                        }
                         <Form.Control
                             ref={inputPostImageRef}
                             type={'file'}
-                            accept={"image/png, image/jpeg"}
+                            accept={"image/png"}
                             onChange={e =>
                             {
                                 const reader = new FileReader();

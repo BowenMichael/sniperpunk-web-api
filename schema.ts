@@ -10,6 +10,7 @@ export const PlayerSchema = new mongoose.Schema({
 
 export const PostSchema = new mongoose.Schema({
     name:String,
+    href:String,
     postImage: {},
 })
 

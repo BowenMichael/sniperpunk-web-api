@@ -54,5 +54,6 @@ export interface ILogRecord {
  */
 export interface IPostRecord extends ICommonRecord{
     name?:string,
+    href?:string,
     postImage?: {data : string},
 }
