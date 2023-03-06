@@ -17,6 +17,13 @@ export const POST_PROPERTIES = {
     }
 }
 
+export const PUT_PROPERTIES = {
+    method: 'PUT',
+    headers: {
+        "Content-Type": "application/json",
+    }
+}
+
 export const GET_PROPERTIES = {
     method: 'GET',
 }
