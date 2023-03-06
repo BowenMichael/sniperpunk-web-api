@@ -1,8 +1,22 @@
 import { GetServerSidePropsContext } from "next";
-import { useState } from "react";
-import {Card, Container, Row, Col, Button, TabContainer, ListGroup, Tab} from "react-bootstrap";
+import {FormEvent, useRef, useState} from "react";
+import {
+    Card,
+    Container,
+    Row,
+    Col,
+    Button,
+    TabContainer,
+    ListGroup,
+    Tab,
+    Modal,
+    Form,
+    FormControl,
+    Image
+} from "react-bootstrap";
 import {IPostRecord, PlayerRecord} from "../types";
 import {CreatePost, DeletePost, GetPosts} from "../middleware/posts";
+import uniqid from 'uniqid'
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     return {
@@ -30,9 +44,8 @@ const Page = (props : Props) =>{
 
     const Users = () => {
         const UserLineItem = (props: {
-            key: any;
             onDelete: () => void, p: PlayerRecord }) => {
-            return (<div key={props.key}>
+            return (<div key={uniqid()}>
                 <Row>
                     <Col xl={"1"}>
                         <Button
@@ -88,19 +101,22 @@ const Page = (props : Props) =>{
                     </Card.Title>
                     <Card.Body >
                         {players.map((p: PlayerRecord) => (
-                            <UserLineItem key={p._id} onDelete={() =>
-                            {
-                                setAwaiting(true);
-                                fetch(window.location.origin + '/api/players/' + p._id, {
-                                    method: 'DELETE'
-                                }).then((value) =>
+                            <div key={uniqid()}>
+                                <UserLineItem onDelete={() =>
                                 {
-                                    if (value.ok) {
-                                        setPlayers(players.filter(proj => proj._id !== p._id));
-                                    }
-                                    setAwaiting(false);
-                                })
-                            }} p={p}/>
+                                    setAwaiting(true);
+                                    fetch(window.location.origin + '/api/players/' + p._id, {
+                                        method: 'DELETE'
+                                    }).then((value) =>
+                                    {
+                                        if (value.ok) {
+                                            setPlayers(players.filter(proj => proj._id !== p._id));
+                                        }
+                                        setAwaiting(false);
+                                    })
+                                }} p={p}/>
+                            </div>
+                            
                         ))}
                     </Card.Body>
                 </Container>
@@ -110,7 +126,8 @@ const Page = (props : Props) =>{
     
     const Posts = () => {
         const PostLineItem = (props: { onDelete: () => void, post: IPostRecord }) => {
-            return (<div>
+            const image = props.post.postImage?.data;
+            return (<div key={uniqid()}>
                 <Row>
                     <Col xl={"1"}>
                         <Button
@@ -124,7 +141,7 @@ const Page = (props : Props) =>{
                         <h2>{props.post.name}</h2>
                     </Col>
                     <Col>
-                        
+                        <Image width={"100%"} src={image? String(image) : ''} alt={'image'}/>
                     </Col>
                 </Row>
 
@@ -139,25 +156,25 @@ const Page = (props : Props) =>{
                         <Card.Body className={'p-3'}>
                         <Row className={'mb-3'}>
                             <Col>
-                                <Button onClick={()=>{
-                                    CreatePost({}).then((newPost)=>{
-                                        setPosts([...posts, newPost])
-                                    })
-                                }}>
-                                    Create Post
-                                </Button>
+                                <CreatePostModal/>
+                                
                             </Col>
                         </Row>
                         <Row>
                             {posts.map((p:IPostRecord)=>(
-                                <PostLineItem
-                                    onDelete={()=>{
-                                        DeletePost(p).then(()=>{
-                                            setPosts(posts.filter(post => post._id != p._id));
-                                        })
-                                    }}
-                                    post={p}/>
+                                <div key={uniqid()}>
+                                    <PostLineItem
+    
+                                        onDelete={()=>{
+                                            DeletePost(p).then(()=>{
+                                                setPosts(posts.filter(post => post._id != p._id));
+                                            })
+                                        }}
+                                        post={p}
+                                    />
+                                </div>
                             ))}
+                                
                         </Row>
                         
                             
@@ -166,30 +183,121 @@ const Page = (props : Props) =>{
             </>
         );
     }
+    const CreatePostModal = () =>
+    {
+        const [createPostModal, setCreatePostModal] = useState(false);
+        const [newPost, setNewPost] = useState<IPostRecord>({});
+
+        const inputPostImageRef = useRef<HTMLInputElement>(null);
+
+
+        const HandleModalHide = () => setCreatePostModal(false);
+        const HandleModalShow = () => setCreatePostModal(true);
+
+        const HandleModalSave = (e: FormEvent<HTMLFormElement>) =>
+        {
+            e.preventDefault();
+
+            CreatePost(newPost).then((newPost) =>
+            {
+                setPosts([...posts, newPost])
+            })
+        }
+
+        return (<>
+            <Button onClick={HandleModalShow}>
+                Create Post
+            </Button>
+            <Modal show={createPostModal} onHide={HandleModalHide}>
+                <Form onSubmit={HandleModalSave}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Modal heading</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+
+                        <Form.Text>Post Name</Form.Text>
+                        <Form.Control
+                            type={'text'}
+                            onChange={
+                                (e) =>
+                                    setNewPost(
+                                        {
+                                            ...newPost,
+                                            name: e.currentTarget.value
+                                        })
+                            }
+                        />
+
+                        <Form.Text>Post Image</Form.Text>
+                        <Form.Control
+                            ref={inputPostImageRef}
+                            type={'file'}
+                            accept={"image/png, image/jpeg"}
+                            onChange={e =>
+                            {
+                                const reader = new FileReader();
+                                reader.onloadend = () =>
+                                {
+                                    setNewPost(
+                                        {
+                                            ...newPost,
+                                            postImage: {data: String(reader.result)}
+                                        })
+                                    //console.log({Image : String(reader.result)})
+                                };
+                                if (inputPostImageRef &&
+                                    inputPostImageRef.current?.files &&
+                                    inputPostImageRef?.current?.files[0] != undefined) {
+
+                                    reader.readAsDataURL(inputPostImageRef?.current?.files[0]);
+                                } else {
+                                    console.error('failed to read as data url')
+                                }
+
+
+                            }}
+                        />
+
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={HandleModalHide}>
+                            Close
+                        </Button>
+                        <Button variant="primary" type={'submit'}>
+                            Save Changes
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+        </>)
+    }
+    
     return(<>
+        
         <Container className={'p-3'}>
             <Card className={'p-3'}>
                 <Card.Title>
                     Sniperpunk web API
                 </Card.Title>
                 <Card.Body className={'p-3'}>
-                    <Tab.Container defaultActiveKey="#link1">
+                    <Tab.Container defaultActiveKey="#posts">
                         <Row className={'mb-3'} >
                             <ListGroup horizontal>
-                                <ListGroup.Item action href="#users">Users</ListGroup.Item>
-                                <ListGroup.Item action href="#posts">Posts</ListGroup.Item>
+                                {/*<a id={'users-tab'}  href="#users">Users</a>
+                                <a id={'posts-tab'}  href="#posts">Posts</a>*/}
                             </ListGroup>
                         </Row>
                         <Row>
-                            <Tab.Content>
-                                <Tab.Pane eventKey={'#users'}>
+                            <Posts/>
+
+                            {/*<Tab.Content>
+                                <Tab.Pane id={'users'} eventKey={'#users'}>
                                     <Users/>
                                 </Tab.Pane>
-                                <Tab.Pane eventKey={'#posts'}>
-                                    <Posts/>
+                                <Tab.Pane id={'posts'} eventKey={'#posts'}>
                                 </Tab.Pane>
                             </Tab.Content>
-                        </Row>
+                        */}</Row>
                     </Tab.Container>
 
 

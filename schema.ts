@@ -1,4 +1,5 @@
-import mongoose from "mongoose"
+import mongoose, {Schema} from "mongoose"
+
 
 export const PlayerSchema = new mongoose.Schema({
     name: String,
@@ -9,7 +10,7 @@ export const PlayerSchema = new mongoose.Schema({
 
 export const PostSchema = new mongoose.Schema({
     name:String,
-    postImage:String,
+    postImage: {},
 })
 
 
