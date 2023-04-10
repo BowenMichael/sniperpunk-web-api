@@ -57,3 +57,18 @@ export interface IPostRecord extends ICommonRecord{
     href?:string,
     postImage?: {data : string},
 }
+
+export interface IPlayerMatchRecord extends ICommonRecord{
+    name?:string,
+    win?:boolean,
+    endGameWeapon?:string,
+    items?:[],
+    
+}
+
+export interface IItemMatchRecord extends ICommonRecord{
+    name?:string,
+    pickRate?:number,
+    avgTimeToKill?:number,
+    stacks?:number,
+}
