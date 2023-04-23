@@ -59,6 +59,7 @@ export interface IPostRecord extends ICommonRecord{
 }
 
 export interface IPlayerMatchRecord extends ICommonRecord{
+    date?:number,
     name?:string,
     win?:boolean,
     endGameWeapon?:string,

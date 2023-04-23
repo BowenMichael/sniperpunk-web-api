@@ -12,6 +12,10 @@ export async function POST(request: Request, res: NextApiResponse){
     //get data from request
     const body =  await request.json();
     
+    //set date information
+    const date = new Date();
+    body.date = date.getTime();
+    
     //create entry in database
     const data = await MatchData.create(body).catch(catcher);
     
