@@ -27,6 +27,7 @@ export const PlayerMatchSchema = new mongoose.Schema({
     name:String,
     win:Boolean,
     endGameWeapon:String,
+    avgTimeToKill:Number,
     items:{},
 })
 

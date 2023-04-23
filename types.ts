@@ -62,6 +62,7 @@ export interface IPlayerMatchRecord extends ICommonRecord{
     name?:string,
     win?:boolean,
     endGameWeapon?:string,
+    avgTimeToKill?:number,
     items?:[],
     
 }
