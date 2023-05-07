@@ -2,7 +2,7 @@
 import mongoose from "mongoose"
 
 //Import Schema
-import {LogSchema, PlayerMatchSchema, PlayerSchema, PostSchema} from "./schema"
+import {LogSchema, PlayerMatchSchema, PlayerSchema, PostSchema, UsersSchema} from "./schema"
 
 // CONNECTING TO MONGOOSE (Get Database Url from .env.local)
 require('dotenv').config()
@@ -42,6 +42,16 @@ export const connectMatchData = async () => {
 
     return { conn, MatchData }
 }
+
+export const connectUsers = async () => {
+    const conn = await connect();
+
+    // OUR USER MODEL
+    const Users = mongoose.models.users || mongoose.model("users", UsersSchema)
+
+    return { conn, Users }
+}
+
 
 const connect = async () => {
     const conn = await mongoose

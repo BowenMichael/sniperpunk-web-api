@@ -17,11 +17,12 @@ import {
 import {IPostRecord, PlayerRecord} from "../types";
 import {CreatePost, DeletePost, GetPosts, UpdatePost} from "../middleware/posts";
 import uniqid from 'uniqid'
+import {GetAPIUrl} from "../middleware/util";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     return {
         props : {
-           players : await (await fetch(process.env.API_URL + 'players', {
+           players : await (await fetch(GetAPIUrl() + 'players', {
                method : 'GET'
            })).json() as PlayerRecord[],
             posts : await GetPosts()
