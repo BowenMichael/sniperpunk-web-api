@@ -219,6 +219,7 @@ const Page = (props : Props) =>{
                 const index = posts.findIndex(post => post._id === newPost._id)
                 posts[index] = newPost;
                 setPosts(posts)
+                Router.push(window.location.pathname);
             })
         }
         
