@@ -2,9 +2,11 @@
 import {connectMatchData, connectUsers} from "../../../../connections";
 import {NextApiRequest, NextApiResponse} from "next";
 import { getServerSession } from "next-auth/next"
+import {getSession} from "next-auth/react";
 //import { authOptions } from "/app/api/auth/[...nextauth]/route";
 
 export async function PUT(request: NextRequest, res: NextApiResponse){
+    
     //Set up catcher function
     const catcher = (error: Error) => res.status(400).json({ error });
 

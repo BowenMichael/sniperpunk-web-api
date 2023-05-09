@@ -12,7 +12,7 @@ import {
     Modal,
     Form,
     FormControl,
-    Image, ButtonGroup
+    Image, ButtonGroup, Alert
 } from "react-bootstrap";
 import {IPostRecord, PlayerRecord} from "../types";
 import {CreatePost, DeletePost, GetPosts, UpdatePost} from "../middleware/posts";
@@ -20,7 +20,7 @@ import uniqid from 'uniqid'
 import {GetAPIUrl} from "../middleware/util";
 import {useSession} from "next-auth/react";
 import Router from "next/router";
-import {useEffect} from "preact/hooks";
+import {useEffect} from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     return {
@@ -51,17 +51,27 @@ const Page = (props : Props) =>{
     {
         if(!loaded)
         {
-            if(session && session?.user?.role != 1){
-                Router.push('login');
-                setLoaded(true);
+
+            if(session){
+                debugger
                 
+                setLoaded(true);
             }
         }
     }, [loaded]);
     //debugger;
 
-    if(awaiting && loading) return <>Awaiting</>
-
+    if(awaiting ) return <>Awaiting</>
+    if(session?.user?.role != 1)
+        return (
+            <Container>
+                <Alert className={'p-5 mb-3 mt-3'} variant={'danger'}>
+                    You are not authenticated Check with admin for roles
+                </Alert>
+            </Container>
+        )
+    if(!loaded && (status != 'authenticated')) return <>Loading</>;
+    
     const Users = () => {
         const UserLineItem = (props: {
             onDelete: () => void, p: PlayerRecord }) => {

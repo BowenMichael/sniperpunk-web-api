@@ -1,10 +1,11 @@
-﻿import { NextResponse } from "next/server";
+﻿import {NextRequest, NextResponse} from "next/server";
 import {connectMatchData} from "../../../connections";
 import {NextApiRequest, NextApiResponse} from "next";
 import { getServerSession } from "next-auth/next"
+import {getSession} from "next-auth/react";
 //import { authOptions } from "/app/api/auth/[...nextauth]/route";
 
-export async function POST(request: Request, res: NextApiResponse){
+export async function POST(request: NextRequest, res: NextApiResponse){
     //Set up catcher function
     const catcher = (error: Error) => res.status(400).json({ error });
     
@@ -25,7 +26,20 @@ export async function POST(request: Request, res: NextApiResponse){
     return NextResponse.json(data);
 }
 
-export async function GET(request : Request, res: NextApiResponse){
+export async function GET(request : NextRequest, res: NextApiResponse){
+/*    const session = await getSession({ request })
+
+    if(!session ) {
+        res.json({ error: "Not Authenticated" })
+        return;
+    }
+
+    if(session?.user?.role != 1){
+        res.json({ error: "Not Authorized"})
+        return;
+    }*/
+
+
     //Set up catcher function
     const catcher = (error: Error) => res.status(400).json({ error });
     

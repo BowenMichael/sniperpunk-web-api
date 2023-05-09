@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { connectPlayer } from "../../../connections"
 import { ResponseFuncs, PlayerRecord } from "../../../types"
+import {getSession} from "next-auth/react";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   //capture request method, we type it as a key of ResponseFunc to reduce typing later
@@ -11,6 +12,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // GRAB ID FROM req.query (where next stores params)
   const id: string = req.query.id as string
+
+  const session = await getSession({ req })
+
+  if(!session ) {
+    res.json({ error: "Not Authenticated" })
+    return;
+  }
+
+  if(session?.user?.role != 1){
+    res.json({ error: "Not Authorized"})
+    return;
+  }
 
   // Potential Responses for /todos/:id
   const handleCase: ResponseFuncs = {

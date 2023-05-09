@@ -164,6 +164,7 @@ export const authOptions = {
         signIn: '/login?failed=true',
         signOut: '/login?logout=true',
         error: '/500'
+        
     },
     secret: process.env.JWT_SECRET,
 };
