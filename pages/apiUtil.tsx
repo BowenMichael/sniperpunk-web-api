@@ -18,6 +18,9 @@ import {IPostRecord, PlayerRecord} from "../types";
 import {CreatePost, DeletePost, GetPosts, UpdatePost} from "../middleware/posts";
 import uniqid from 'uniqid'
 import {GetAPIUrl} from "../middleware/util";
+import {useSession} from "next-auth/react";
+import Router from "next/router";
+import {useEffect} from "preact/hooks";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     return {
@@ -38,10 +41,26 @@ interface Props {
 const Page = (props : Props) =>{
     const [players, setPlayers] = useState<PlayerRecord[]>(props.players ? props.players : []);
     const [posts, setPosts] = useState<IPostRecord[]>(props.posts ? props.posts : []);
-
+    const [loaded, setLoaded] = useState(false);
     const [awaiting, setAwaiting] = useState(false);
 
-    if(awaiting) return <>Awaiting</>
+    const { data: session, status } = useSession()
+    const loading = status === "loading"
+
+    useEffect(() =>
+    {
+        if(!loaded)
+        {
+            if(session && session?.user?.role != 1){
+                Router.push('login');
+                setLoaded(true);
+                
+            }
+        }
+    }, [loaded]);
+    //debugger;
+
+    if(awaiting && loading) return <>Awaiting</>
 
     const Users = () => {
         const UserLineItem = (props: {
@@ -220,6 +239,7 @@ const Page = (props : Props) =>{
                 const index = posts.findIndex(post => post._id === newPost._id)
                 posts[index] = newPost;
                 setPosts(posts)
+                Router.push(window.location.pathname);
             })
         }
         

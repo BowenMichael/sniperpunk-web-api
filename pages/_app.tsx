@@ -2,7 +2,7 @@ import '../styles/globals.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import type { AppProps } from 'next/app'
 import {SSRProvider} from "react-bootstrap";
-import { SessionProvider } from "next-auth/react"
+import {SessionProvider, useSession} from "next-auth/react"
 
 function MyApp({
                    Component,

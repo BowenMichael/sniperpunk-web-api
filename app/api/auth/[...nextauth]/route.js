@@ -2,7 +2,7 @@
 import GoogleProvider from "next-auth/providers/google"
 import {MongoDBAdapter} from "@next-auth/mongodb-adapter";
 import clientPromise from "../lib/mongodb";
-import {UpdateUser} from "../../../../middleware/users";
+import {GetUser, GetUserFromEmail, UpdateUser} from "../../../../middleware/users";
 
 /**
  * Takes a token, and returns a new token with updated
@@ -53,6 +53,9 @@ export const authOptions = {
     providers : [
         GoogleProvider({
             /*profile(profile) {
+                return { role: profile.role ?? "user" }
+            },*/
+            /*profile(profile) {
                 return { role: profile.role ?? 0, ... }
             },*/
             clientId: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID : "",
@@ -65,7 +68,8 @@ export const authOptions = {
                             prompt: "consent",
                             scope : 'https://www.googleapis.com/auth/userinfo.email',
                             include_granted_scopes: true
-                        }
+                        },
+                    
                 }
             /*accessTokenUrl: "https://oauth2.googleapis.com/o/oauth2/token",
             requestTokenUrl : "https://oauth2.googleapis.com/o/oauth2/auth",
@@ -112,39 +116,31 @@ export const authOptions = {
             
             if (account.provider === "google") {
                 //console.log("google account", account)
+                profile.role = profile.role ?? "user"
                 return profile
             }
             return false;
         },
-        async session({ session, user }) {
-            console.log(session, user);
+        async session({ session, user, token, profile }) {
+            //console.log(session, user);
             /*if(session.user.role == null){
                 console.error("no role", {user : user, session  });
                 session.user = await UpdateUser({...user, role : 0});
             }*/
-            session.user = user;
+            //session.user = user;
+            //const userDB = await GetUserFromEmail(user.email);
+            let userDB = await GetUser(user.id);
+            //console.log("userDB", userDB, !userDB?.role)
+            if(userDB && !userDB?.role){
+                userDB = await UpdateUser({...user, role : 0});
+                //console.log("userDB with role", userDB, !userDB?.role)
+
+            }
+            session.user.role = userDB.role
+
+            //console.log("session", {session, userDB})
             return session // The return type will match the one returned in `useSession()`
-        },
-        async jwt({token, account, user, profile}) {
-            
-            
-            if (account?.access_token) {
-                token.accessToken = account.access_token;
-                token.refreshToken = account.refresh_token;
-                console.log("jwt", {access : account.access_token, refresh: account.refresh_token, account})
-
-
-            }
-/*
-            if (Date.now() < token.accessTokenExpires) {
-                return token
-            }
-
-            // Access token has expired, try to update it
-            return refreshAccessToken(token)*/
-            
-            return token;
-        },
+        }
 
 
     },

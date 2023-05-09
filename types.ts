@@ -1,6 +1,8 @@
 ﻿/**
  * @description Functions for API Calls
  */
+import {User} from "next-auth";
+
 export interface ResponseFuncs {
     GET?: Function
     POST?: Function
@@ -73,4 +75,13 @@ export interface IItemMatchRecord extends ICommonRecord{
     pickRate?:number,
     avgTimeToKill?:number,
     stacks?:number,
+}
+
+export interface IUserRecord extends User {
+    name : string,
+    email : string,
+    image? : string,
+    emailVerified? : boolean,
+    created? : number,
+    role? : string,
 }
