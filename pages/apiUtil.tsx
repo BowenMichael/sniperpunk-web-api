@@ -12,11 +12,13 @@ import {
     Modal,
     Form,
     FormControl,
-    Image, ButtonGroup
+    Image, ButtonGroup, Spinner
 } from "react-bootstrap";
-import {IPostRecord, PlayerRecord} from "../types";
+import {IPlayerMatchRecord, IPostRecord, PlayerRecord} from "../types";
 import {CreatePost, DeletePost, GetPosts, UpdatePost} from "../middleware/posts";
 import uniqid from 'uniqid'
+import {GetMatchData, GetMatchsByName} from "../middleware/matchData";
+import Router from "next/router";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     return {
@@ -25,6 +27,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                method : 'GET'
            })).json() as PlayerRecord[],
             posts : await GetPosts()
+            //,            matchData : await GetMatchData()
         }
     }
 }
@@ -37,6 +40,9 @@ interface Props {
 const Page = (props : Props) =>{
     const [players, setPlayers] = useState<PlayerRecord[]>(props.players ? props.players : []);
     const [posts, setPosts] = useState<IPostRecord[]>(props.posts ? props.posts : []);
+    const [findPlayer, setFindPlayer] = useState('');
+    const [matchData, setMatchData] = useState<IPlayerMatchRecord[]>([]);
+    const [loadingMatchData, setLoadingMatchData] = useState(false);
 
     const [awaiting, setAwaiting] = useState(false);
 
@@ -320,7 +326,20 @@ const Page = (props : Props) =>{
             </Modal>
         </>)
     }
-    
+
+    async function onSubmitFindMatchData(e : FormEvent<HTMLFormElement>) {
+        console.log("------Looking for player info");
+        setLoadingMatchData(true);
+        e.preventDefault();
+        GetMatchsByName(findPlayer).then((data)=>{
+            setMatchData(data);
+            console.log("------Found for player info", data);
+            setLoadingMatchData(false);
+
+
+        });
+    }
+
     return(<>
         
         <Container className={'p-3'}>
@@ -347,6 +366,47 @@ const Page = (props : Props) =>{
                                 </Tab.Pane>
                             </Tab.Content>
                         */}</Row>
+                        <Row>
+                            <Card className={'m-3 p-3'}>
+                                <Form onSubmit={onSubmitFindMatchData}>
+                                    <Form.Control value={findPlayer} onChange={(e)=> setFindPlayer(e.currentTarget.value)} />
+                                    <Button type={'submit'}>Search Match Data</Button>
+                                </Form>
+                                <br/>
+                                
+
+                                {!loadingMatchData ? 
+                                    <>
+                                        <Row>
+                                            <Col>
+                                                <Form.Text>Win%</Form.Text>
+                                                <Form.Control defaultValue={(matchData.filter(match => match.win).length / matchData.length) * 100} disabled/>
+                                            </Col>
+                                            <Col>
+                                                <Form.Text>Wins</Form.Text>
+                                                <Form.Control defaultValue={matchData.filter(match => match.win).length} disabled/>
+                                            </Col>
+                                            <Col>
+                                                <Form.Text>Loses</Form.Text>
+                                                <Form.Control defaultValue={matchData.filter(match => !match.win).length} disabled/>
+                                            </Col>
+                                            <Col>
+                                                <Form.Text>Total Matches</Form.Text>
+                                                <Form.Control defaultValue={matchData.length} disabled/>
+                                            </Col>
+                                        </Row>
+                                        {matchData.map((match)=>{
+                                            return <div key={match._id}>
+                                                <Card className={'m-3 p-3'}>
+                                                    {match.name}
+                                                </Card>
+                                            </div>
+                                        })}
+                                    </>: <Spinner/>}
+                            </Card>
+                            
+                            
+                        </Row>
                     </Tab.Container>
 
 
