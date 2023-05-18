@@ -356,7 +356,7 @@ const Page = (props : Props) =>{
                             </ListGroup>
                         </Row>
                         <Row>
-                            <Posts/>
+                            {/*<Posts/>*/}
 
                             {/*<Tab.Content>
                                 <Tab.Pane id={'users'} eventKey={'#users'}>
