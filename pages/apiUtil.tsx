@@ -27,7 +27,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                method : 'GET'
            })).json() as PlayerRecord[],
             posts : await GetPosts()
-            //,            matchData : await GetMatchData()
+            ,            matchData : await GetMatchData()
         }
     }
 }
@@ -35,6 +35,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface Props {
     players : PlayerRecord[]
     posts : IPostRecord[]
+    matchData : any[]
 }
 
 const Page = (props : Props) =>{
@@ -335,8 +336,6 @@ const Page = (props : Props) =>{
             setMatchData(data);
             console.log("------Found for player info", data);
             setLoadingMatchData(false);
-
-
         });
     }
 
@@ -356,6 +355,12 @@ const Page = (props : Props) =>{
                             </ListGroup>
                         </Row>
                         <Row>
+                            {/*{props.matchData.map((match) => {
+                                return <Card className={'p-5'}>
+                                    {JSON.stringify(match)}
+                                </Card>
+                            })}*/}
+                            
                             {/*<Posts/>*/}
 
                             {/*<Tab.Content>

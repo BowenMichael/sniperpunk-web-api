@@ -25,12 +25,8 @@ export const LogSchema = new mongoose.Schema({
 
 export const PlayerMatchSchema = new mongoose.Schema({
     date:Number,
-    name:String,
-    win:Boolean,
-    endGameWeapon:String,
-    avgTimeToKill:Number,
-    characterName:String,
-    items:{},
+    match_time : String,
+    players : [],
 })
 
 
