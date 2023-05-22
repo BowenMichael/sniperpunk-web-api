@@ -372,7 +372,7 @@ const Page = (props : Props) =>{
                             </Tab.Content>
                         */}</Row>
                         <Row>
-                            <Card className={'m-3 p-3'}>
+                           {/* <Card className={'m-3 p-3'}>
                                 <Form onSubmit={onSubmitFindMatchData}>
                                     <Form.Control value={findPlayer} onChange={(e)=> setFindPlayer(e.currentTarget.value)} />
                                     <Button type={'submit'}>Search Match Data</Button>
@@ -408,7 +408,7 @@ const Page = (props : Props) =>{
                                             </div>
                                         })}
                                     </>: <Spinner/>}
-                            </Card>
+                            </Card>*/}
                             
                             
                         </Row>

@@ -25,7 +25,7 @@ export const LogSchema = new mongoose.Schema({
 
 export const PlayerMatchSchema = new mongoose.Schema({
     date:Number,
-    match_time : String,
+    match_data : {},
     players : [],
 })
 
