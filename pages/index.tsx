@@ -1,20 +1,28 @@
 ﻿import {useEffect} from "react";
 import Router from "next/router";
+import {useSession} from "next-auth/react";
+import SignInButton from "../components/sign-in";
 
 
 export  const Home = () => {
+    const {data : session, status} = useSession();
    useEffect(()=>{
-       Router.push('/apiUtil').then((res)=>{
-           if(res){
-               console.log('Redirect Successful')
-           }else{
-               console.log('Redirect Failed')
-           }
-       });
+       Router.push('/login')
+       if(status === 'authenticated'){
+           Router.push('/apiUtil').then((res)=>{
+               if(res){
+                   console.log('Redirect Successful')
+               }else{
+                   console.log('Redirect Failed')
+               }
+           });
+       }
    })
     
-    return (<>
     
+    
+    return (<>
+        <SignInButton/>
     </>)
 }
 

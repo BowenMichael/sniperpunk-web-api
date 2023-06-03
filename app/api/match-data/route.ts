@@ -1,8 +1,11 @@
 ﻿import { NextResponse } from "next/server";
 import {connectMatchData} from "../../../connections";
 import {NextApiRequest, NextApiResponse} from "next";
+import { getServerSession } from "next-auth/next"
+import {getSession} from "next-auth/react";
+//import { authOptions } from "/app/api/auth/[...nextauth]/route";
 
-export async function POST(request: Request, res: NextApiResponse){
+export async function POST(request: NextRequest, res: NextApiResponse){
     //Set up catcher function
     const catcher = (error: Error) => res.status(400).json({ error });
     

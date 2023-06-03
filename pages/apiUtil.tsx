@@ -12,59 +12,107 @@ import {
     Modal,
     Form,
     FormControl,
-    Image, ButtonGroup, Spinner
+    Image, ButtonGroup, Alert, Spinner, Navbar
+
 } from "react-bootstrap";
-import {IPlayerMatchRecord, IPostRecord, PlayerRecord} from "../types";
+import {IPlayerMatchRecord, IPostRecord, IUserRecord, PlayerRecord, roles} from "../types";
 import {CreatePost, DeletePost, GetPosts, UpdatePost} from "../middleware/posts";
 import uniqid from 'uniqid'
-import {GetMatchData, GetMatchsByName} from "../middleware/matchData";
+import {GetAPIUrl, PUT_PROPERTIES} from "../middleware/util";
+import {useSession} from "next-auth/react";
 import Router from "next/router";
+import {useEffect} from "react";
+import {GetMatchData, GetMatchsByName} from "../middleware/matchData";
+import SignInButton from "../components/sign-in";
+import {GetUsers} from "../middleware/users";
+
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     return {
         props : {
-           players : await (await fetch(process.env.API_URL + 'players', {
+           players : await (await fetch(GetAPIUrl() + 'players', {
                method : 'GET'
            })).json() as PlayerRecord[],
-            posts : await GetPosts()
-            ,            matchData : await GetMatchData()
+            posts : await GetPosts(),
+            matchData : await GetMatchData(),
+            users : await GetUsers()
         }
     }
 }
 
 interface Props {
     players : PlayerRecord[]
+    users : IUserRecord[]
     posts : IPostRecord[]
     matchData : any[]
 }
 
 const Page = (props : Props) =>{
     const [players, setPlayers] = useState<PlayerRecord[]>(props.players ? props.players : []);
+    const [users, setUsers] = useState<IUserRecord[]>(props.users ? props.users : []);
     const [posts, setPosts] = useState<IPostRecord[]>(props.posts ? props.posts : []);
+    const [loaded, setLoaded] = useState(false);
     const [findPlayer, setFindPlayer] = useState('');
     const [matchData, setMatchData] = useState<IPlayerMatchRecord[]>([]);
     const [loadingMatchData, setLoadingMatchData] = useState(false);
 
     const [awaiting, setAwaiting] = useState(false);
 
-    if(awaiting) return <>Awaiting</>
+    const { data: session, status } = useSession()
+    const loading = status === "loading"
 
+    useEffect(() =>
+    {
+        if(!loaded)
+        {
+
+            if(session){
+                debugger
+                
+                setLoaded(true);
+            }
+            
+            if(status === "unauthenticated"){
+                Router.push('/login?unauthenticated')
+                setLoaded(false)
+            }
+        }
+    }, [loaded]);
+    //debugger;
+
+    if(awaiting ) return <>Awaiting</>
+    if(session?.user?.role != 1)
+        return (
+            <Container>
+                <Alert className={'p-5 mb-3 mt-3'} variant={'danger'}>
+                    You are not authenticated Check with admin for roles
+                </Alert>
+                <SignInButton/>
+            </Container>
+        )
+    if(!loaded && (status != 'authenticated')) return <>Loading</>;
+    
     const Users = () => {
         const UserLineItem = (props: {
-            onDelete: () => void, p: PlayerRecord }) => {
+            onSave: (u : IUserRecord) => void, u: IUserRecord }) => {
+            const [user, setUser] = useState(props.u);
             return (<div key={uniqid()}>
                 <Row>
-                    <Col xl={"1"}>
-                        <Button
-                            variant={"danger"}
-                            onClick={props.onDelete}
-                        >
-                            Delete
-                        </Button>
+                    <Col>
+                        <h2>{props.u.email}</h2>
+                    </Col>
+                    <Col >
+                        <Form.Select defaultValue={user?.role} onChange={(e) => setUser({...user, role : Number(e.currentTarget.value)})}>
+                            {roles.map((role, idx)=><option value={idx}>{role.desc}</option>)}
+                        </Form.Select>
+                        <Form.Control value={user?.role} type={'number'} disabled/>
                     </Col>
                     <Col>
-                        <h2>{props.p._id}</h2>
+                        <Button onClick={()=>{props.onSave(user)}}>
+                            Save
+                        </Button>
                     </Col>
+                    
                 </Row>
 
                 <hr/>
@@ -80,7 +128,7 @@ const Page = (props : Props) =>{
                         </Row>
                         <Row>
                             <Col>
-                                <Button
+                                {/*<Button
                                     onClick={() =>
                                     {
                                         setAwaiting(true);
@@ -101,27 +149,30 @@ const Page = (props : Props) =>{
                                         })
                                     }}>
                                     Create User
-                                </Button>
+                                </Button>*/}
                             </Col>
                             
                         </Row>
                     </Card.Title>
                     <Card.Body >
-                        {players.map((p: PlayerRecord) => (
+                        {users.map((u: IUserRecord) => (
                             <div key={uniqid()}>
-                                <UserLineItem onDelete={() =>
+                                <UserLineItem onSave={(u) =>
                                 {
                                     setAwaiting(true);
-                                    fetch(window.location.origin + '/api/players/' + p._id, {
-                                        method: 'DELETE'
+                                    fetch(window.location.origin + '/api/users/' + u._id, {
+                                        ...PUT_PROPERTIES,
+                                        body : JSON.stringify(u)
                                     }).then((value) =>
                                     {
-                                        if (value.ok) {
-                                            setPlayers(players.filter(proj => proj._id !== p._id));
-                                        }
+                                        const modifiedUserIndex = users.findIndex(newU => newU._id === u._id);
+                                        let newUsers = users;
+                                        newUsers[modifiedUserIndex] = u;
+                                        setUsers(newUsers)
+                                        Router.reload()
                                         setAwaiting(false);
                                     })
-                                }} p={p}/>
+                                }} u={u}/>
                             </div>
                             
                         ))}
@@ -136,7 +187,7 @@ const Page = (props : Props) =>{
             const image = props.post.postImage?.data;
             return (<div key={uniqid()}>
                 <Row>
-                    <Col xl={"1"}>
+                    <Col sm={"2"}>
                         <ButtonGroup>
                             <Button
                                 variant={"danger"}
@@ -340,7 +391,21 @@ const Page = (props : Props) =>{
     }
 
     return(<>
-        
+        <Navbar className={'p-3'} bg="light" expand="lg" sticky={'top'}>
+               <Col>
+                    <Row>
+                        <Col className={'col-md-auto'}>
+                            <Navbar.Brand >SNIPERPUNK API</Navbar.Brand>
+    
+                        </Col>
+                        <Col/>
+                        <Col className={'col-md-auto'}>
+                            <SignInButton/>
+                        </Col>
+                    </Row>
+                </Col>
+
+        </Navbar>
         <Container className={'p-3'}>
             <Card className={'p-3'}>
                 <Card.Title>
@@ -361,18 +426,18 @@ const Page = (props : Props) =>{
                                 </Card>
                             })}*/}
                             
-                            {/*<Posts/>*/}
+                            <Posts/>
+                            <Users/>
 
-                            {/*<Tab.Content>
+                            <Tab.Content>
                                 <Tab.Pane id={'users'} eventKey={'#users'}>
-                                    <Users/>
                                 </Tab.Pane>
                                 <Tab.Pane id={'posts'} eventKey={'#posts'}>
                                 </Tab.Pane>
                             </Tab.Content>
-                        */}</Row>
+                        </Row>
                         <Row>
-                           {/* <Card className={'m-3 p-3'}>
+                            <Card className={'m-3 p-3'}>
                                 <Form onSubmit={onSubmitFindMatchData}>
                                     <Form.Control value={findPlayer} onChange={(e)=> setFindPlayer(e.currentTarget.value)} />
                                     <Button type={'submit'}>Search Match Data</Button>
@@ -408,7 +473,7 @@ const Page = (props : Props) =>{
                                             </div>
                                         })}
                                     </>: <Spinner/>}
-                            </Card>*/}
+                            </Card>
                             
                             
                         </Row>

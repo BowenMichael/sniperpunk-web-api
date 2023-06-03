@@ -1,6 +1,8 @@
 ﻿/**
  * @description Functions for API Calls
  */
+import {User} from "next-auth";
+
 export interface ResponseFuncs {
     GET?: Function
     POST?: Function
@@ -74,3 +76,20 @@ export interface IItemMatchRecord extends ICommonRecord{
     avgTimeToKill?:number,
     stacks?:number,
 }
+
+export interface IUserRecord extends ICommonRecord {
+    name : string,
+    email : string,
+    image? : string,
+    emailVerified? : boolean,
+    created? : number,
+    role? : number,
+}
+
+export const roles = [
+    { id : 0, desc : 'new' },
+    { id : 1, desc : 'admin' },
+    { id : 2, desc : 'read-only' },
+]
+
+

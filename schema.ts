@@ -29,5 +29,15 @@ export const PlayerMatchSchema = new mongoose.Schema({
     players : [],
 })
 
+export const UsersSchema = new mongoose.Schema({
+    name : String,
+    email : String,
+    image : String,
+    emailVerified : Boolean,
+    created : Number,
+    role : String,
+})
+
+
 
 

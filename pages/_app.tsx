@@ -2,12 +2,18 @@ import '../styles/globals.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import type { AppProps } from 'next/app'
 import {SSRProvider} from "react-bootstrap";
+import {SessionProvider, useSession} from "next-auth/react"
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({
+                   Component,
+                   pageProps: { session, ...pageProps },
+               }: AppProps) {
   return (
-      <SSRProvider>
-        <Component {...pageProps} />
-      </SSRProvider>
+      <SessionProvider>
+          <SSRProvider>
+              <Component {...pageProps} />
+          </SSRProvider>
+      </SessionProvider>
   )
 }
 
