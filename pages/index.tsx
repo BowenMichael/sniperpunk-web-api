@@ -7,7 +7,8 @@ import SignInButton from "../components/sign-in";
 export  const Home = () => {
     const {data : session, status} = useSession();
    useEffect(()=>{
-       if(status === 'unauthenticated'){
+       Router.push('/login')
+       if(status === 'authenticated'){
            Router.push('/apiUtil').then((res)=>{
                if(res){
                    console.log('Redirect Successful')

@@ -17,7 +17,8 @@ export async function PUT(request: NextRequest, res: NextApiResponse){
     const body =  await request.json();
     
     //create entry in database
-    const data = await Users.findByIdAndUpdate(body.id, body ).catch(catcher);
+    const data = (await Users.findByIdAndUpdate(body._id, body )).catch(catcher);
+    console.log({data, body});
 
     //console.log(data, body, request.url)
 

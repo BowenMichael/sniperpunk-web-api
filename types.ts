@@ -77,11 +77,19 @@ export interface IItemMatchRecord extends ICommonRecord{
     stacks?:number,
 }
 
-export interface IUserRecord extends User {
+export interface IUserRecord extends ICommonRecord {
     name : string,
     email : string,
     image? : string,
     emailVerified? : boolean,
     created? : number,
-    role? : string,
+    role? : number,
 }
+
+export const roles = [
+    { id : 0, desc : 'new' },
+    { id : 1, desc : 'admin' },
+    { id : 2, desc : 'read-only' },
+]
+
+

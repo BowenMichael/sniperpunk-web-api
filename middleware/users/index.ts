@@ -2,7 +2,7 @@
 import {GetAPIUrlWithPath, GetAPIUrlWithPathAndID, GET_PROPERTIES, PUT_PROPERTIES } from "../util";
 
 export async function UpdateUser(user : IUserRecord){
-    return await (await fetch(GetAPIUrlWithPathAndID('users', user.id),
+    return await (await fetch(GetAPIUrlWithPathAndID('users', user._id?.toString()),
         {
             ...PUT_PROPERTIES,
             body: JSON.stringify(user)
@@ -19,7 +19,7 @@ export async function GetUsers(){
         {
             ...GET_PROPERTIES
         }
-    )).json();
+    )).json() as IUserRecord[];
 }
 
 export async function GetUser(id : string){
