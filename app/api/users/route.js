@@ -1,13 +1,21 @@
 ﻿import {NextRequest, NextResponse} from "next/server";
 import {connectMatchData, connectUsers} from "../../../connections";
-import {NextApiRequest, NextApiResponse} from "next";
-import { getServerSession } from "next-auth/next"
+import {getServerSession} from "next-auth";
+
 //import { authOptions } from "/app/api/auth/[...nextauth]/route";
 
 
-export async function GET(request: NextRequest, res: NextApiResponse){
+export async function GET(request, res){
+
+ 
+    /*const session = await getServerSession()
+    if(!session){
+        console.error("failed to get session", session)
+        return NextResponse.json([])
+    }*/
+    
     //Set up catcher function
-    const catcher = (error: Error) => res.status(400).json({ error });
+    const catcher = (error) => res.status(400).json({ error });
 
     //connect to database
     const { Users } = await connectUsers();

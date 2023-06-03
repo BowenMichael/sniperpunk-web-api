@@ -1,8 +1,10 @@
-﻿import NextAuth from "next-auth"
+﻿import NextAuth, {NextAuthOptions} from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import {MongoDBAdapter} from "@next-auth/mongodb-adapter";
 import clientPromise from "../lib/mongodb";
 import {GetUser, GetUserFromEmail, UpdateUser} from "../../../../middleware/users";
+import {SessionStrategy} from 'next-auth'
+
 
 /**
  * Takes a token, and returns a new token with updated
@@ -82,14 +84,15 @@ export const authOptions = {
             maxAge: 24 * 60 * 60, // How long email links are valid for (default 24h)
         }),*/
     ],
-    session: {
+    /*session: {
         // Choose how you want to save the user session.
         // The default is `"jwt"`, an encrypted JWT (JWE) stored in the session cookie.
         // If you use an `adapter` however, we default it to `"database"` instead.
         // You can still force a JWT session by explicitly defining `"jwt"`.
         // When using `"database"`, the session cookie will only contain a `sessionToken` value,
         // which is used to look up the session in the database.
-        strategy: "database",
+        strategy: "database" 
+        ,
 
         // Seconds - How long until an idle session expires and is no longer valid.
         maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -105,7 +108,7 @@ export const authOptions = {
         // Defaults to `session.maxAge`.
         maxAge: 60 * 60 * 24 * 30,
         // You can define your own encode/decode functions for signing and encryption
-    },
+    },*/
     callbacks: {
 
         async signIn({ user, account, profile, email, credentials }) {
@@ -166,7 +169,7 @@ export const authOptions = {
         error: '/500'
         
     },
-    secret: process.env.JWT_SECRET,
+    /*secret: process.env.JWT_SECRET,*/
 };
 
 export const handler = NextAuth(authOptions)

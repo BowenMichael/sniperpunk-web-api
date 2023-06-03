@@ -3,9 +3,19 @@ import {connectMatchData, connectUsers} from "../../../../connections";
 import {NextApiRequest, NextApiResponse} from "next";
 import { getServerSession } from "next-auth/next"
 import {getSession} from "next-auth/react";
+import {authOptions} from "../../auth/[...nextauth]/route";
 //import { authOptions } from "/app/api/auth/[...nextauth]/route";
 
-export async function PUT(request: NextRequest, res: NextApiResponse){
+export async function PUT(request: NextRequest,  res: NextApiResponse){
+
+    const session = await getServerSession();
+
+    if (!session) {
+        res.status(401).json({ message: "You must be logged in." });
+        return;
+    }
+    
+
     
     //Set up catcher function
     const catcher = (error: Error) => res.status(400).json({ error });
