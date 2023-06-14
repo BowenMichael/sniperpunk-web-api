@@ -103,7 +103,7 @@ const Page = (props : Props) =>{
                     </Col>
                     <Col >
                         <Form.Select defaultValue={user?.role} onChange={(e) => setUser({...user, role : Number(e.currentTarget.value)})}>
-                            {roles.map((role, idx)=><option value={idx}>{role.desc}</option>)}
+                            {roles.map((role, idx)=><option key={idx} value={idx}>{role.desc}</option>)}
                         </Form.Select>
                         <Form.Control value={user?.role} type={'number'} disabled/>
                     </Col>
