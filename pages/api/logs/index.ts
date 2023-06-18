@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next"
 import { connectLog } from "../../../connections"
 import { ResponseFuncs, PlayerRecord } from "../../../types"
 import {getServerSession} from "next-auth/next";
-import { authOptions } from "../../../app/api/auth/[...nextauth]/route";
 import {getSession} from "next-auth/react";
 
 

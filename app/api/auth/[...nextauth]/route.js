@@ -48,7 +48,7 @@ async function refreshAccessToken(token) {
         }
     }
 }
-export const authOptions = {
+const authOptions = {
     adapter : MongoDBAdapter(clientPromise),
     providers : [
         GoogleProvider({
@@ -169,6 +169,6 @@ export const authOptions = {
     secret: process.env.JWT_SECRET,
 };
 
-export const handler = NextAuth(authOptions)
+ const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }

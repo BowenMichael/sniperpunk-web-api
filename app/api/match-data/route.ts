@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+﻿import { NextResponse, NextRequest } from "next/server";
 import {connectMatchData} from "../../../connections";
 import {NextApiRequest, NextApiResponse} from "next";
 import { getServerSession } from "next-auth/next"
