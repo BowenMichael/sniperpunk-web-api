@@ -17,7 +17,7 @@ async function refreshAccessToken(token) {
                 client_id: process.env.GOOGLE_CLIENT_ID,
                 client_secret: process.env.GOOGLE_CLIENT_SECRET,
                 grant_type: "refresh_token",
-                refresh_token: token.refresh_token,
+                refresh_token: token.refresh_token
             })
         console.log(url)
         const response = await fetch(url, {
